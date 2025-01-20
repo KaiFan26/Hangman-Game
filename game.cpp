@@ -4,7 +4,8 @@
 // Resources:
 // https://github.com/Shreda/pentestTools/blob/master/random-words.txt
 // https://ascii.co.uk/art/hangman
-//Asking ChatGPT for Ascii Art
+// https://www.asciiart.eu/miscellaneous/noose
+// Asking ChatGPT for Ascii Art
 
 #include <iostream>
 #include <vector>
@@ -343,6 +344,98 @@ void easyModeSeventhGuessWrong() {
         cout << seventhGuessWrong << endl;
 }
 
+void mediumModeFirstGuessWrong() {
+
+    string firstGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << firstGuess << endl;
+
+
+}
+
+void mediumModeSecondGuessWrong() {
+    
+    string secondGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |      /|\n"
+   "  |     / |\n"
+   "  |\n"
+   "__|__\n";
+
+    cout << secondGuess << endl;
+
+
+}
+
+void mediumModeThirdGuessWrong() {
+
+
+   string thirdGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|\n"
+   "  |     / |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << thirdGuess << endl;
+
+}
+
+void mediumModeFourthGuessWrong() {
+
+    string fourthGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |     / |\n"
+   "  |\n"
+   "__|__\n";
+
+    cout << fourthGuess << endl;
+
+}
+
+void mediumModeFifthGuessWrong() {
+
+    
+
+
+}
+
+
+
 int main() {
 
     cout << "Welcome to the Hangman Chamber!" << endl; //Start of the game!!!
@@ -367,9 +460,6 @@ int main() {
 
     string randomWord = getRandomWordFromFile("random-words.txt"); //Get a random word from the text file
 
-    // randomWord = "needle"; //temporary test
-    // cout << randomWord << endl;
-
     vector<char> guessWord(randomWord.length());
     initializeHiddenWord(guessWord, randomWord);
 
@@ -384,17 +474,17 @@ int main() {
 
     if (difficultyCheck == "easy") {
         difficulty = "Easy";
-        numOfGuesses = 7;
+        numOfGuesses = EASY_GUESSES;
     }
 
      else if (difficultyCheck == "medium") {
         difficulty = "Medium";
-        numOfGuesses = 5;
+        numOfGuesses = MEDIUM_GUESSES;
     }
 
      else if (difficultyCheck == "hard") {
         difficulty = "Hard";
-        numOfGuesses = 3;
+        numOfGuesses = HARD_GUESSES;
     }
 
 
@@ -403,7 +493,7 @@ int main() {
     cout << "You've got " << numOfGuesses << " guesses..." << endl << endl;
     this_thread::sleep_for(chrono::seconds(1));
     cout << "Let's get hangin!" << endl;
-    this_thread::sleep_for(chrono::seconds(1));H
+    this_thread::sleep_for(chrono::seconds(1));
     system("clear");
 
     startingNoose();
@@ -427,7 +517,7 @@ int main() {
                     startingNoose();
                     break;
                 case 1:
-                    cout << "We're here" << endl;
+                    // cout << "We're here" << endl;
                     easyModeFirstGuessWrong(); 
                     break;
                 case 2:
