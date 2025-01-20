@@ -147,7 +147,7 @@ void initializeHiddenWord(vector<char>& wordToGuess, string randomWord) {
 
 }
 
-void printCurrentStateOfGuess(vector<char>& wordToGuess) {
+void printCurrentStateOfGuess(vector<char>& wordToGuess) { //Prints how many letters found and how many underscores left
 
     cout << "Your word: ";
 
@@ -158,24 +158,24 @@ void printCurrentStateOfGuess(vector<char>& wordToGuess) {
 
 }
 
-bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string letterGuessed) {
+bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string letterGuessed) { //Check if the user found a new letter
 
-    if (letterGuessed.length() >= 2) {
+    if (letterGuessed.length() >= 2) { //Edge case for input of more than 1 character
         cout << "Woah woah woah!! One letter at a time!" << endl;
         return false;
     }
 
-    else if (letterGuessed.length() <= 0) {
+    else if (letterGuessed.length() <= 0) { //Check for empty input
         cout << "Ya gotta put something!!" << endl;
         return false;
     }
 
-    if (!isalpha(letterGuessed[0])) {
+    if (!isalpha(letterGuessed[0])) { //Check if it's even a letter in the first place
         cout << "Put a letter!!!" << endl;
         return false;
     }
 
-    transform(letterGuessed.begin(), letterGuessed.end(), letterGuessed.begin(), ::tolower);
+    transform(letterGuessed.begin(), letterGuessed.end(), letterGuessed.begin(), ::tolower); //Lowercase it to make it easier to check
 
     bool newLetterFound = false;
 
@@ -191,7 +191,7 @@ bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string let
 
 }
 
-bool checkIfUnderscoresGone(vector<char> wordToGuess) {
+bool checkIfUnderscoresGone(vector<char> wordToGuess) { //Check if all underscores are gone
 
     for (int i = 0; i < wordToGuess.size(); i++) {
         if (wordToGuess[i] == '_') {
@@ -448,6 +448,66 @@ void mediumModeFifthGuessWrong() {
 }
 
 
+void hardModeFirstGuessWrong() {
+
+    string firstGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    |'-'-'|\n"
+   "  |    | [_] |\n"
+   "  |     \\___/\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << firstGuess << endl;
+
+}
+
+
+void hardModeSecondGuessWrong() {
+
+    string secondGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    |'-'-'|\n"
+   "  |    | [_] |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << secondGuess << endl;
+
+}
+
+void hardModeThirdGuessWrong() {
+
+    string thirdGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    |'-'-'|\n"
+   "  |    | [_] |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |      / \n"
+   "  |\n"
+   "__|__\n";
+
+   cout << thirdGuess << endl;
+
+}
 
 
 
@@ -517,6 +577,8 @@ int main() {
     startingNoose();
     printCurrentStateOfGuess(guessWord);
     cout << "Guess a letter!" << endl;
+
+
 
 
      while (Game) {
