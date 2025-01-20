@@ -429,10 +429,28 @@ void mediumModeFourthGuessWrong() {
 
 void mediumModeFifthGuessWrong() {
 
-    
+    string fifthGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | - - |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |     /   \\\n"
+   "  |    /     \\\n"
+   "__|__\n";
 
+    cout << fifthGuess << endl;
 
 }
+
+
+
+
+
 
 
 
