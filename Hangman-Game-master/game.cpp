@@ -1,0 +1,775 @@
+// Hangman Game
+// Your very own Hanel Vujic
+// January 2025
+// Resources:
+// https://github.com/Shreda/pentestTools/blob/master/random-words.txt
+// https://ascii.co.uk/art/hangman
+// https://www.asciiart.eu/miscellaneous/noose
+// Asking ChatGPT for Ascii Art
+
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <cstdlib>
+#include <ctime>
+#include <string> 
+#include <algorithm> 
+#include <chrono>
+#include <thread>
+#include <set>
+using namespace std;
+
+
+int EASY_GUESSES = 7; //Number of guesses for easy mode
+int MEDIUM_GUESSES = 5; //Number of guesses for medium mode
+int HARD_GUESSES = 3; //Number of guesses for hard mode
+
+string checkDifficultyInput(string input) { //Helper function to check what difficulty the user wants to play in
+
+    transform(input.begin(), input.end(), input.begin(), ::tolower); //Turn everything to lower case to easily check
+
+    if (input == "e" || input == "easy") { //Check for easy difficulty
+        return "easy";
+    }
+    else if (input == "m" || input == "medium" ) { //or medium difficulty
+        return "medium";
+    }
+
+    else if (input == "h" || input == "hard" ) { //Or hard difficulty
+        return "hard";
+    }
+
+    else {
+        return "Invalid Choice"; //Or invalidity!
+    }
+}
+
+void printHangmanTitle() {
+    string hangmanTitle = 
+        " _                                              \n"
+        "| |                                             \n"
+        "| |__   __ _ _ __   __ _ _ __ ___   __ _ _ __  \n"
+        "| '_ \\ / _` | '_ \\ / _` | '_ ` _ \\ / _` | '_ \\ \n"
+        "| | | | (_| | | | | (_| | | | | | | (_| | | | |\n"
+        "|_| |_|\\__,_|_| |_|\\__, |_| |_| |_|\\__,_|_| |_|\n"
+        "                    __/ |                      \n"
+        "                   |___/                       \n";
+
+    cout << hangmanTitle;
+}
+
+void gameOverScreen() {
+
+    string asciiArt = 
+    " ___________.._______\n"
+    "| .__________))______|\n"
+    "| | / /      ||\n"
+    "| |/ /       ||\n"
+    "| | /        ||.-''.\n"
+    "| |/         |/  _  \\\n"
+    "| |          ||  `/,|\n"
+    "| |          (\\\\`_.'\n"
+    "| |         .-`--'.\n"
+    "| |        /Y . . Y\\\n"
+    "| |       // |   | \\\\\n"
+    "| |      //  | . |  \\\\\n"
+    "| |     ')   |   |   (`\n"
+    "| |          ||'||\n"
+    "| |          || ||\n"
+    "| |          || ||\n"
+    "| |          || ||\n"
+    "| |         / | | \\\n"
+    "\"\"\"\"\"\"\"\"\"\"|_`-' `-' |\"\"\"\"|\n"
+    "|\"|\"\"\"\"\"\"\"\\\\ \\       '\"|\"|\n"
+    "| |        \\\\ \\        | |\n"
+    ": :         \\\\ \\       : :  \n"
+    ". .          `'       . .\n";
+
+    cout << asciiArt << endl;
+}
+
+void visualGameOver() {
+    string asciiArt = 
+"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀\n"
+"⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⣶⡆⠀⣰⣿⠇⣾⡿⠛⠉⠁\n"
+"⠀⣠⣴⠾⠿⠿⠀⢀⣾⣿⣆⣀⣸⣿⣷⣾⣿⡿⢸⣿⠟⢓⠀⠀\n"
+"⣴⡟⠁⣀⣠⣤⠀⣼⣿⠾⣿⣻⣿⠃⠙⢫⣿⠃⣿⡿⠟⠛⠁⠀\n"
+"⢿⣝⣻⣿⡿⠋⠾⠟⠁⠀⠹⠟⠛⠀⠀⠈⠉⠀⠉⠀⠀⠀⠀⠀\n"
+"⠀⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⠀⣀⢀⣠⣤⣴⣤⣄⠀\n"
+"⠀⠀⠀⠀⣀⣤⣤⢶⣤⠀⠀⢀⣴⢃⣿⠟⠋⢹⣿⣣⣴⡿⠋⠀\n"
+"⠀⠀⣰⣾⠟⠉⣿⡜⣿⡆⣴⡿⠁⣼⡿⠛⢃⣾⡿⠋⢻⣇⠀⠀\n"
+"⠀⠐⣿⡁⢀⣠⣿⡇⢹⣿⡿⠁⢠⣿⠷⠟⠻⠟⠀⠀⠈⠛⠀⠀\n"
+"⠀⠀⠙⠻⠿⠟⠋⠀⠀⠙⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n";
+
+
+    cout << asciiArt << endl;
+}
+
+// Function to get a random word from the file
+string getRandomWordFromFile(const string& filename) {
+    ifstream file(filename);  // Open the file
+    if (!file) {
+        cerr << "Error: Could not open the file!" << endl;
+        return "";  // Return empty string if the file can't be opened
+    }
+
+    vector<string> words;  // Vector to store words
+    string word;
+
+    // Read each word from the file and store it in the vector
+    while (getline(file, word)) {
+        words.push_back(word);
+    }
+
+    file.close();  // Close the file
+
+    if (words.empty()) {
+        cerr << "Error: The file is empty!" << std::endl;
+        return "";  // Return empty string if there are no words
+    }
+
+    // Seed random number generator and pick a random word
+    srand(time(0));  // Seed the random number generator
+    int randomIndex = rand() % words.size();  // Generate a random index
+
+    return words[randomIndex];  // Return the randomly selected word
+}
+
+void initializeHiddenWord(vector<char>& wordToGuess, string randomWord) {
+    
+    for (size_t i = 0; i < randomWord.length(); i++) {
+        if (isalpha(randomWord[i])) {
+            wordToGuess[i] = '_';
+        } 
+        else {
+            wordToGuess[i] = randomWord[i];
+        }
+    }
+
+}
+
+void printCurrentStateOfGuess(vector<char>& wordToGuess) { //Prints how many letters found and how many underscores left
+
+    cout << "Your word: ";
+
+    for (int i = 0; i < wordToGuess.size(); i++) {
+        cout << wordToGuess[i] << " ";
+    }
+    cout << endl;
+
+}
+
+bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string letterGuessed) { //Check if the user found a new letter
+
+    if (letterGuessed.length() >= 2) { //Edge case for input of more than 1 character
+        cout << "Woah woah woah!! One letter at a time!" << endl;
+        return false;
+    }
+
+    else if (letterGuessed.length() <= 0) { //Check for empty input
+        cout << "Ya gotta put something!!" << endl;
+        return false;
+    }
+
+    if (!isalpha(letterGuessed[0])) { //Check if it's even a letter in the first place
+        cout << "Put a letter!!!" << endl;
+        return false;
+    }
+
+    transform(letterGuessed.begin(), letterGuessed.end(), letterGuessed.begin(), ::tolower); //Lowercase it to make it easier to check
+
+    bool newLetterFound = false;
+
+    for (int i = 0; i < wordToGuess.size(); i++) {
+
+        if (randomWord[i] == letterGuessed[0]) {
+            wordToGuess[i] = letterGuessed[0];
+            newLetterFound = true;
+        }
+    }
+
+    return newLetterFound;
+
+}
+
+bool checkIfUnderscoresGone(vector<char> wordToGuess) { //Check if all underscores are gone
+
+    for (int i = 0; i < wordToGuess.size(); i++) {
+        if (wordToGuess[i] == '_') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void startingNoose() {
+
+    string smallerHeadNoose = 
+        "   _______\n"
+        "  |       |\n"
+        "  |     \n"
+        "  |   \n"
+        "  |   \n"
+        "  |   \n"
+        "  |       \n"
+        "  |       \n"
+        "__|__\n";
+
+    cout << smallerHeadNoose << endl;
+}
+
+void easyModeFirstGuessWrong() {
+    string smallerHeadNoose = 
+        "   _______\n"
+        "  |       |\n"
+        "  |      _|_\n"
+        "  |     /   \\\n"
+        "  |    |     |\n"
+        "  |    |     |\n"
+        "  |     \\___/\n"
+        "  |       \n"
+        "  |       \n"
+        "__|__\n";
+
+    cout << smallerHeadNoose;
+}
+
+void easyModeSecondGuessWrong() {
+    string secondGuessNoose = 
+        "   _______\n"
+        "  |       |\n"
+        "  |      _|_\n"
+        "  |     /   \\\n"
+        "  |    | . . |\n"
+        "  |    |  O  |\n"
+        "  |     \\___/\n"
+        "  |       \n"
+        "  |       \n"
+        "__|__\n";
+
+    cout << secondGuessNoose;
+}
+
+void easyModeThirdGuessWrong() {
+    string thirdGuessNoose =
+        "   _______\n"
+        "  |       |\n"
+        "  |      _|_\n"
+        "  |     /   \\\n"
+        "  |    | . . |\n"
+        "  |    |  O  |\n"
+        "  |     \\___/\n"
+        "  |       |\n"
+        "  |       |\n"
+        "__|__\n";
+
+        cout << thirdGuessNoose << endl;
+}
+
+
+void easyModeFourthGuessWrong() {
+
+    string fourthGuessWrong =
+        "   _______\n"
+        "  |       |\n"
+        "  |      _|_\n"
+        "  |     /   \\\n"
+        "  |    | . . |\n"
+        "  |    |  O  |\n"
+        "  |     \\___/\n"
+        "  |       |\n"
+        "  |       |\n"
+        "  |      /\n"
+        "  |     /   \n"
+        "__|__\n";
+
+        cout << fourthGuessWrong << endl;
+
+}
+
+void easyModeFifthGuessWrong() {
+
+     string fifthGuessWrong = 
+        "   _______\n"
+        "  |       |\n"
+        "  |      _|_\n"
+        "  |     /   \\\n"
+        "  |    | . . |\n"
+        "  |    |  O  |\n"
+        "  |     \\___/\n"
+        "  |       |\n"
+        "  |       |\n"
+        "  |      / \\\n"
+        "  |     /   \\\n"
+        "__|__\n";
+
+        cout << fifthGuessWrong << endl;
+}
+
+void easyModeSixthGuessWrong() {
+
+    string sixthGuessWrong = 
+        "   _______\n"
+        "  |       |\n"
+        "  |      _|_\n"
+        "  |     /   \\\n"
+        "  |    | . . |\n"
+        "  |    |  O  |\n"
+        "  |     \\___/\n"
+        "  |   \\   | \n"
+        "  |     --| \n"
+        "  |      / \\ \n"
+        "  |     /   \\ \n"
+        "__|__\n";
+
+    cout << sixthGuessWrong << endl;
+}
+
+void easyModeSeventhGuessWrong() {
+    string seventhGuessWrong = 
+        "   _______\n"
+        "  |       |\n"
+        "  |      _|_\n"
+        "  |     /   \\\n"
+        "  |    | X X |\n"
+        "  |    |  O  |\n"
+        "  |     \\___/\n"
+        "  |   \\  | \n"
+        "  |    --|-- \n"
+        "  |     / \\  \\\n"
+        "  |    /   \\ \n"
+        "  |         \n"
+        "__|__\n";
+
+        cout << seventhGuessWrong << endl;
+}
+
+void mediumModeFirstGuessWrong() {
+
+    string firstGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << firstGuess << endl;
+
+
+}
+
+void mediumModeSecondGuessWrong() {
+    
+    string secondGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |      /|\n"
+   "  |     / |\n"
+   "  |\n"
+   "__|__\n";
+
+    cout << secondGuess << endl;
+
+
+}
+
+void mediumModeThirdGuessWrong() {
+
+
+   string thirdGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|\n"
+   "  |     / |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << thirdGuess << endl;
+
+}
+
+void mediumModeFourthGuessWrong() {
+
+    string fourthGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | ^ ^ |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |     / |\n"
+   "  |\n"
+   "__|__\n";
+
+    cout << fourthGuess << endl;
+
+}
+
+void mediumModeFifthGuessWrong() {
+
+    string fifthGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    | - - |\n"
+   "  |    |  ~  |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |     /   \\\n"
+   "  |    /     \\\n"
+   "__|__\n";
+
+    cout << fifthGuess << endl;
+
+}
+
+
+void hardModeFirstGuessWrong() {
+
+    string firstGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    |'-'-'|\n"
+   "  |    | [_] |\n"
+   "  |     \\___/\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << firstGuess << endl;
+
+}
+
+
+void hardModeSecondGuessWrong() {
+
+    string secondGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    |'-'-'|\n"
+   "  |    | [_] |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |\n"
+   "  |\n"
+   "__|__\n";
+
+   cout << secondGuess << endl;
+
+}
+
+void hardModeThirdGuessWrong() {
+
+    string thirdGuess = 
+   "   _______\n"
+   "  |       |\n"
+   "  |      _|_\n"
+   "  |     /   \\\n"
+   "  |    |'-'-'|\n"
+   "  |    | [_] |\n"
+   "  |     \\___/\n"
+   "  |       |\n"
+   "  |     --|--\n"
+   "  |      / \n"
+   "  |\n"
+   "__|__\n";
+
+   cout << thirdGuess << endl;
+
+}
+
+
+void congratsScreen() {
+    cout << R"(                                 _       
+                                | |      
+  ___ ___  _ __   __ _ _ __ __ _| |_ ___ 
+ / __/ _ \| '_ \ / _` | '__/ _` | __/ __|
+| (_| (_) | | | | (_| | | | (_| | |_\__ \
+ \___\___/|_| |_|\__, |_|  \__,_|\__|___/
+                  __/ |                  
+                 |___/                   
+)" << endl;
+}
+
+void gameOverText(string result_word) {
+    gameOverScreen();
+    this_thread::sleep_for(chrono::seconds(1));
+    visualGameOver();
+    cout << endl;
+    cout << "The word was: " << result_word << endl << endl;
+}
+
+bool askUserToPlayAgain() {
+    cout << "Want to play again? (Y/N)" << endl;
+    string playAgainInput;
+    cin >> playAgainInput;
+    transform(playAgainInput.begin(), playAgainInput.end(), playAgainInput.begin(), ::tolower);
+    //cout << playAgainInput << endl; // Printing check
+    if (playAgainInput == "y" || playAgainInput == "yes") {
+        return true;
+    }
+    cout << endl << "Thank you for playing..." << endl;
+    this_thread::sleep_for(chrono::seconds(1));
+    printHangmanTitle();
+    return false;
+    
+}
+
+void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord, set<char>& userGuesses, string& difficulty, int& numOfGuesses) {
+    
+    // numOfGuesses
+    numOfMistakes = 0;
+    randomWord = getRandomWordFromFile("random-words.txt");
+    guessWord.clear();
+    guessWord.resize(randomWord.length());
+    initializeHiddenWord(guessWord, randomWord);
+    userGuesses.clear();
+
+    cout << "Want to change difficulty? (Y/N)" << endl;
+    string changeDifficultyInput;
+    cin >> changeDifficultyInput;
+    transform(changeDifficultyInput.begin(), changeDifficultyInput.end(), changeDifficultyInput.begin(), ::tolower);
+    if (changeDifficultyInput == "y" || changeDifficultyInput == "yes") {
+        cout << "What difficulty do you want to play in???" << endl;
+        cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties
+        cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
+        cin >> changeDifficultyInput;
+        string difficultyCheck = checkDifficultyInput(changeDifficultyInput); //See if they correctly typed in
+        while (difficultyCheck == "Invalid Choice") {
+            cout << "Invalid option or perhaps a mistype! Try again... :)" << endl;
+            cin >> changeDifficultyInput;
+            difficultyCheck = checkDifficultyInput(changeDifficultyInput); //Prompt the user again if they mistyped or chose wrong
+        }
+        if (difficultyCheck == "easy") {
+            difficulty = "Easy";
+            numOfGuesses = EASY_GUESSES;
+        }
+
+        else if (difficultyCheck == "medium") {
+            difficulty = "Medium";
+            numOfGuesses = MEDIUM_GUESSES;
+        }
+
+        else if (difficultyCheck == "hard") {
+            difficulty = "Hard";
+            numOfGuesses = HARD_GUESSES;
+        }
+
+    }       
+}
+
+
+
+int main() {
+
+    cout << "Welcome to the Hangman Chamber!" << endl; //Start of the game!!!
+    cout << "What difficulty do you want to play in???" << endl;
+    cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties are available
+    cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
+    string input; //User input 
+
+    // printHangmanTitle();
+
+    set<char> userGuesses; //Keep track of what letter's the user guessed
+
+    cin >> input; //Get input
+
+    string difficultyCheck = checkDifficultyInput(input); //See if they correctly typed in 
+
+    while (difficultyCheck == "Invalid Choice") {
+        cout << "Invalid option or perhaps a mistype! Try again... :)" << endl;
+        cin >> input;
+        difficultyCheck = checkDifficultyInput(input); //Prompt the user again if they mistyped or chose wrong
+    }
+
+    string randomWord = getRandomWordFromFile("random-words.txt"); //Get a random word from the text file
+    cout << "The answer is " << randomWord << endl; //Check to see if we got a word
+
+    vector<char> guessWord(randomWord.length()); //character vector to put in to restart game
+    initializeHiddenWord(guessWord, randomWord);
+
+    int numOfGuesses = 0;
+
+    string letterGuess;
+    string difficulty;
+
+    bool Game = true;
+    bool letterFound;
+    int numOfMistakes = 0;
+
+    if (difficultyCheck == "easy") {
+        difficulty = "Easy";
+        numOfGuesses = EASY_GUESSES;
+    }
+
+     else if (difficultyCheck == "medium") {
+        difficulty = "Medium";
+        numOfGuesses = MEDIUM_GUESSES;
+    }
+
+     else if (difficultyCheck == "hard") {
+        difficulty = "Hard";
+        numOfGuesses = HARD_GUESSES;
+    }
+
+
+    cout << difficulty << " Mode Chosen...." << endl << endl;
+    this_thread::sleep_for(chrono::seconds(1));
+    cout << "You've got " << numOfGuesses << " guesses..." << endl << endl;
+    this_thread::sleep_for(chrono::seconds(1));
+    cout << "If you wish to quit, just type in 'quit'." << endl << endl;
+    this_thread::sleep_for(chrono::seconds(2));
+    cout << "Let's get hangin!" << endl;
+    this_thread::sleep_for(chrono::seconds(1));
+    system("clear");
+
+    startingNoose();
+    printCurrentStateOfGuess(guessWord);
+    cout << "Guess a letter!" << endl;
+
+    bool playAgain;
+
+
+    while (Game) {
+
+            cin >> letterGuess;
+
+            if (letterGuess == "quit") {
+                cout << endl;
+                cout << "Your word was: " << randomWord << endl;
+                cout << endl << "Thank you for playing..." << endl;
+                this_thread::sleep_for(chrono::seconds(1));
+              
+                printHangmanTitle();
+
+                return 0;
+            }
+
+            letterFound = checkIfLetterFound(guessWord, randomWord, letterGuess);
+
+            if (!letterFound) {
+                numOfMistakes++;
+            }
+            cout << "Num of mistakes: " << numOfMistakes << endl;
+
+            switch (numOfMistakes) {
+
+                case 0:
+                    startingNoose();
+                    break;
+                case 1:
+                    (difficulty == "Medium") ? mediumModeFirstGuessWrong() : (difficulty == "Hard") ? hardModeFirstGuessWrong() : easyModeFirstGuessWrong();
+                    break;
+                case 2:
+                    (difficulty == "Medium") ? mediumModeSecondGuessWrong() : (difficulty == "Hard") ? hardModeSecondGuessWrong() : easyModeSecondGuessWrong();
+                    break;
+                case 3:
+                    if (difficulty == "Hard") {
+                       
+                        gameOverText(randomWord);
+                        playAgain = askUserToPlayAgain();
+                        if (!playAgain) {
+                            return 0;
+                        }
+                        restartGame(numOfMistakes, guessWord, randomWord, userGuesses, difficulty, numOfGuesses);
+                        // ADD THESE TWO LINES:
+                        // system("clear"); 
+                        startingNoose(); 
+                        printCurrentStateOfGuess(guessWord);
+                        continue; // This jumps back to the start of the 'while' loop
+                    }
+
+                    (difficulty == "Medium") ? mediumModeThirdGuessWrong() : easyModeThirdGuessWrong();
+                    break;
+                case 4:
+                    (difficulty == "Medium") ? mediumModeFourthGuessWrong() : easyModeFourthGuessWrong();
+                    break;
+                case 5:
+                    if (difficulty == "Medium") {
+                        gameOverText(randomWord);
+                        playAgain = askUserToPlayAgain();
+                        if (!playAgain) {
+                            return 0;
+                        }
+                        restartGame(numOfMistakes, guessWord, randomWord, userGuesses, difficulty, numOfGuesses);
+                        // ADD THESE TWO LINES:
+                        // system("clear"); 
+                        startingNoose(); 
+                        printCurrentStateOfGuess(guessWord);
+                        continue; // This jumps back to the start of the 'while' loop
+                    }
+
+                    easyModeFifthGuessWrong();
+                    break;
+                case 6:
+                    easyModeSixthGuessWrong();
+                    break;
+                case 7:
+                    gameOverText(randomWord);
+                    playAgain = askUserToPlayAgain();
+                    if (!playAgain) {
+                        return 0;
+                    }
+                    restartGame(numOfMistakes, guessWord, randomWord, userGuesses, difficulty, numOfGuesses);
+                    // ADD THESE TWO LINES:
+                    // system("clear"); 
+                    startingNoose(); 
+                    printCurrentStateOfGuess(guessWord);
+                    continue; // This jumps back to the start of the 'while' loop
+            }
+
+            printCurrentStateOfGuess(guessWord);
+
+            if (checkIfUnderscoresGone(guessWord)) {
+                cout << endl <<"You found them all!" << endl;
+                this_thread::sleep_for(chrono::seconds(2));
+                congratsScreen();
+                cout << endl;
+                playAgain = askUserToPlayAgain();
+                if (!playAgain) {
+                    Game = false;
+                }
+                else {
+                    restartGame(numOfMistakes, guessWord, randomWord, userGuesses, difficulty, numOfGuesses);
+                    startingNoose(); 
+                    printCurrentStateOfGuess(guessWord);
+                }
+            }
+            
+        }
+
+
+    return 0;
+}
