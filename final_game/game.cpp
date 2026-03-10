@@ -24,7 +24,7 @@ int EASY_GUESSES = 7; //Number of guesses for easy mode
 int MEDIUM_GUESSES = 5; //Number of guesses for medium mode
 int HARD_GUESSES = 3; //Number of guesses for hard mode
 
-void establishDifficulty() {
+void printDifficulty() {
     cout << "What difficulty do you want to play in???" << endl;
     cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties are available
     cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
@@ -49,6 +49,26 @@ string checkDifficultyInput(string input) { //Helper function to check what diff
         return "Invalid Choice"; //Or invalidity!
     }
 }
+
+void establishDifficulty(string difficultyCheck, string& difficulty, int& numOfGuesses) { //Helper function to establish difficulty based on user input
+
+    if (difficultyCheck == "easy") {
+        difficulty = "Easy";
+        numOfGuesses = EASY_GUESSES;
+    }
+
+    else if (difficultyCheck == "medium") {
+        difficulty = "Medium";
+        numOfGuesses = MEDIUM_GUESSES;
+    }
+
+    else if (difficultyCheck == "hard") {
+        difficulty = "Hard";
+        numOfGuesses = HARD_GUESSES;
+    }
+
+}
+
 
 void printHangmanTitle() {
     string hangmanTitle = 
@@ -570,10 +590,8 @@ void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord
 
     transform(changeDifficultyInput.begin(), changeDifficultyInput.end(), changeDifficultyInput.begin(), ::tolower);
     if (changeDifficultyInput == "y" || changeDifficultyInput == "yes") {
-        // cout << "What difficulty do you want to play in???" << endl;
-        // cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties
-        // cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
-        establishDifficulty();
+
+        printDifficulty();
         cin >> changeDifficultyInput;
         string difficultyCheck = checkDifficultyInput(changeDifficultyInput); //See if they correctly typed in
         while (difficultyCheck == "Invalid Choice") {
@@ -581,24 +599,10 @@ void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord
             cin >> changeDifficultyInput;
             difficultyCheck = checkDifficultyInput(changeDifficultyInput); //Prompt the user again if they mistyped or chose wrong
         }
-        if (difficultyCheck == "easy") {
-            difficulty = "Easy";
-            numOfGuesses = EASY_GUESSES;
-        }
 
-        else if (difficultyCheck == "medium") {
-            difficulty = "Medium";
-            numOfGuesses = MEDIUM_GUESSES;
-        }
-
-        else if (difficultyCheck == "hard") {
-            difficulty = "Hard";
-            numOfGuesses = HARD_GUESSES;
-        }
+        establishDifficulty(difficultyCheck, difficulty, numOfGuesses);
 
         cout << endl << "You can make " << numOfGuesses << " mistakes..." << endl << endl;
-
-
 
     }       
 }
@@ -608,11 +612,8 @@ void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord
 int main() {
 
     cout << "Welcome to the Hangman Chamber!" << endl << endl; //Start of the game!!!
-    // cout << "What difficulty do you want to play in???" << endl;
-    // cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties are available
-    // cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
-    
-    establishDifficulty();
+
+    printDifficulty();
     string input; //User input 
 
     // printHangmanTitle();
@@ -644,27 +645,10 @@ int main() {
     bool letterFound;
     int numOfMistakes = 0;
 
-    if (difficultyCheck == "easy") {
-        difficulty = "Easy";
-        numOfGuesses = EASY_GUESSES;
-    }
-
-     else if (difficultyCheck == "medium") {
-        difficulty = "Medium";
-        numOfGuesses = MEDIUM_GUESSES;
-    }
-
-     else if (difficultyCheck == "hard") {
-        difficulty = "Hard";
-        numOfGuesses = HARD_GUESSES;
-    }
-
-
-
+    establishDifficulty(difficultyCheck, difficulty, numOfGuesses);
 
     cout << difficulty << " Mode Chosen...." << endl << endl;
     this_thread::sleep_for(chrono::seconds(1));
-    //cout << "You've got " << numOfGuesses << " guesses..." << endl << endl;
     cout << "You can make " << numOfGuesses << " mistakes..." << endl << endl;
     this_thread::sleep_for(chrono::seconds(1));
     cout << "If you wish to quit, just type in 'quit'." << endl << endl;
@@ -715,15 +699,12 @@ int main() {
                     break;
                 case 3:
                     if (difficulty == "Hard") {
-                       
                         gameOverText(randomWord);
                         playAgain = askUserToPlayAgain();
                         if (!playAgain) {
                             return 0;
                         }
                         restartGame(numOfMistakes, guessWord, randomWord, userGuesses, difficulty, numOfGuesses);
-                        // ADD THESE TWO LINES:
-                        // system("clear"); 
                         startingNoose(); 
                         printCurrentStateOfGuess(guessWord);
                         continue; // This jumps back to the start of the 'while' loop
@@ -742,8 +723,6 @@ int main() {
                             return 0;
                         }
                         restartGame(numOfMistakes, guessWord, randomWord, userGuesses, difficulty, numOfGuesses);
-                        // ADD THESE TWO LINES:
-                        // system("clear"); 
                         startingNoose(); 
                         printCurrentStateOfGuess(guessWord);
                         continue; // This jumps back to the start of the 'while' loop
@@ -761,8 +740,6 @@ int main() {
                         return 0;
                     }
                     restartGame(numOfMistakes, guessWord, randomWord, userGuesses, difficulty, numOfGuesses);
-                    // ADD THESE TWO LINES:
-                    // system("clear"); 
                     startingNoose(); 
                     printCurrentStateOfGuess(guessWord);
                     continue; // This jumps back to the start of the 'while' loop
