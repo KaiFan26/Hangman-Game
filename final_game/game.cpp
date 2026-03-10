@@ -24,6 +24,12 @@ int EASY_GUESSES = 7; //Number of guesses for easy mode
 int MEDIUM_GUESSES = 5; //Number of guesses for medium mode
 int HARD_GUESSES = 3; //Number of guesses for hard mode
 
+void establishDifficulty() {
+    cout << "What difficulty do you want to play in???" << endl;
+    cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties are available
+    cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
+}
+
 string checkDifficultyInput(string input) { //Helper function to check what difficulty the user wants to play in
 
     transform(input.begin(), input.end(), input.begin(), ::tolower); //Turn everything to lower case to easily check
@@ -558,13 +564,16 @@ void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord
     userGuesses.clear();
 
     cout << "Want to change difficulty? (Y/N)" << endl;
+
     string changeDifficultyInput;
     cin >> changeDifficultyInput;
+
     transform(changeDifficultyInput.begin(), changeDifficultyInput.end(), changeDifficultyInput.begin(), ::tolower);
     if (changeDifficultyInput == "y" || changeDifficultyInput == "yes") {
-        cout << "What difficulty do you want to play in???" << endl;
-        cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties
-        cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
+        // cout << "What difficulty do you want to play in???" << endl;
+        // cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties
+        // cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
+        establishDifficulty();
         cin >> changeDifficultyInput;
         string difficultyCheck = checkDifficultyInput(changeDifficultyInput); //See if they correctly typed in
         while (difficultyCheck == "Invalid Choice") {
@@ -587,6 +596,10 @@ void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord
             numOfGuesses = HARD_GUESSES;
         }
 
+        cout << endl << "You can make " << numOfGuesses << " mistakes..." << endl << endl;
+
+
+
     }       
 }
 
@@ -594,10 +607,12 @@ void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord
 
 int main() {
 
-    cout << "Welcome to the Hangman Chamber!" << endl; //Start of the game!!!
-    cout << "What difficulty do you want to play in???" << endl;
-    cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties are available
-    cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
+    cout << "Welcome to the Hangman Chamber!" << endl << endl; //Start of the game!!!
+    // cout << "What difficulty do you want to play in???" << endl;
+    // cout << "       Easy          Medium        Hard" << endl; //Establish what difficulties are available
+    // cout << "( Type E or Easy | M or Medium | H or Hard )" << endl;
+    
+    establishDifficulty();
     string input; //User input 
 
     // printHangmanTitle();
@@ -645,9 +660,12 @@ int main() {
     }
 
 
+
+
     cout << difficulty << " Mode Chosen...." << endl << endl;
     this_thread::sleep_for(chrono::seconds(1));
-    cout << "You've got " << numOfGuesses << " guesses..." << endl << endl;
+    //cout << "You've got " << numOfGuesses << " guesses..." << endl << endl;
+    cout << "You can make " << numOfGuesses << " mistakes..." << endl << endl;
     this_thread::sleep_for(chrono::seconds(1));
     cout << "If you wish to quit, just type in 'quit'." << endl << endl;
     this_thread::sleep_for(chrono::seconds(2));
