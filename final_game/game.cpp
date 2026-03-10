@@ -17,6 +17,8 @@
 #include <chrono>
 #include <thread>
 #include <set>
+#include <limits>
+
 using namespace std;
 
 
@@ -185,7 +187,7 @@ void printCurrentStateOfGuess(vector<char>& wordToGuess) { //Prints how many let
 
 }
 
-bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string letterGuessed) { //Check if the user found a new letter
+bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string letterGuessed, set<char>& guessedLetters) { //Check if the user found a new letter
 
     if (letterGuessed.length() >= 2) { //Edge case for input of more than 1 character
         cout << "Woah woah woah!! One letter at a time!" << endl;
@@ -202,13 +204,22 @@ bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string let
         return false;
     }
 
+    else if (guessedLetters.count(letterGuessed[0])) { //Check if they already guessed that letter
+        cout << endl << "You already guessed that letter!! I won't penalize you for this..." << endl;
+        return true;
+    }
+
     transform(letterGuessed.begin(), letterGuessed.end(), letterGuessed.begin(), ::tolower); //Lowercase it to make it easier to check
+
+    guessedLetters.insert(letterGuessed[0]);
 
     bool newLetterFound = false;
 
     for (int i = 0; i < wordToGuess.size(); i++) {
 
         if (randomWord[i] == letterGuessed[0]) {
+
+            cout << endl << "The letter was " << letterGuessed << endl;
             wordToGuess[i] = letterGuessed[0];
             newLetterFound = true;
         }
@@ -560,7 +571,8 @@ void gameOverText(string result_word) {
 bool askUserToPlayAgain() {
     cout << "Want to play again? (Y/N)" << endl;
     string playAgainInput;
-    cin >> playAgainInput;
+    // cin >> playAgainInput;
+    getline(cin, playAgainInput);
     transform(playAgainInput.begin(), playAgainInput.end(), playAgainInput.begin(), ::tolower);
     //cout << playAgainInput << endl; // Printing check
     if (playAgainInput == "y" || playAgainInput == "yes") {
@@ -586,17 +598,20 @@ void restartGame(int& numOfMistakes, vector<char>& guessWord, string& randomWord
     cout << "Want to change difficulty? (Y/N)" << endl;
 
     string changeDifficultyInput;
-    cin >> changeDifficultyInput;
+    // cin >> changeDifficultyInput;
+    getline(cin, changeDifficultyInput);
 
     transform(changeDifficultyInput.begin(), changeDifficultyInput.end(), changeDifficultyInput.begin(), ::tolower);
     if (changeDifficultyInput == "y" || changeDifficultyInput == "yes") {
 
         printDifficulty();
-        cin >> changeDifficultyInput;
+        // cin >> changeDifficultyInput;
+        getline(cin, changeDifficultyInput);
         string difficultyCheck = checkDifficultyInput(changeDifficultyInput); //See if they correctly typed in
         while (difficultyCheck == "Invalid Choice") {
             cout << "Invalid option or perhaps a mistype! Try again... :)" << endl;
-            cin >> changeDifficultyInput;
+            // cin >> changeDifficultyInput;
+            getline(cin, changeDifficultyInput);
             difficultyCheck = checkDifficultyInput(changeDifficultyInput); //Prompt the user again if they mistyped or chose wrong
         }
 
@@ -620,7 +635,8 @@ int main() {
 
     set<char> userGuesses; //Keep track of what letter's the user guessed
 
-    cin >> input; //Get input
+    // cin >> input; //Get input
+    getline(cin, input);
 
     string difficultyCheck = checkDifficultyInput(input); //See if they correctly typed in 
 
@@ -663,10 +679,14 @@ int main() {
 
     bool playAgain;
 
+    // cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
 
     while (Game) {
 
-            cin >> letterGuess;
+            // cin >> letterGuess;
+            getline(cin, letterGuess);
+
 
             if (letterGuess == "quit") {
                 cout << endl;
@@ -679,7 +699,7 @@ int main() {
                 return 0;
             }
 
-            letterFound = checkIfLetterFound(guessWord, randomWord, letterGuess);
+            letterFound = checkIfLetterFound(guessWord, randomWord, letterGuess, userGuesses);
 
             if (!letterFound) {
                 numOfMistakes++;
