@@ -645,7 +645,7 @@ int main() {
     }
 
     string randomWord = getRandomWordFromFile("random-words.txt"); //Get a random word from the text file
-    cout << "The answer is " << randomWord << endl; //Check to see if we got a word
+    //cout << "The answer is " << randomWord << endl; //Check to see if we got a word
 
     vector<char> guessWord(randomWord.length()); //character vector to put in to restart game
     initializeHiddenWord(guessWord, randomWord);
