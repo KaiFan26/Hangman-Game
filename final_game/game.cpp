@@ -218,8 +218,6 @@ bool checkIfLetterFound(vector<char>& wordToGuess, string randomWord, string let
     for (int i = 0; i < wordToGuess.size(); i++) {
 
         if (randomWord[i] == letterGuessed[0]) {
-
-            cout << endl << "The letter was " << letterGuessed << endl;
             wordToGuess[i] = letterGuessed[0];
             newLetterFound = true;
         }
