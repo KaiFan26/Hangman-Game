@@ -8,7 +8,7 @@ A fun minigame I made in my free time using C++ to create the popular game used 
 - **For Mac Users:** 
 You can download the C++ compiler Clang using `xcode-select --install` inside the terminal. Mac also tends to have GCC pre-installed, but if not you can run `sudo apt install g++`.
 - **For Windows Users:** To get GCC on Windows, my favorite installation video is from Nick Walton:  
-[![GCC/MinGW on Windows Quick Setup Guide](Nick_Walton_screenshot.png)](https://www.youtube.com/watch?v=k6juv3mIr9o) Make sure you have the proper extensions needed for whatever IDE you are using to play this game. If using VSCode like me, you might need to also get the C/C++ extension. 
+[![GCC/MinGW on Windows Quick Setup Guide](final_game/Nick_Walton_screenshot.png)](https://www.youtube.com/watch?v=k6juv3mIr9o) Make sure you have the proper extensions needed for whatever IDE you are using to play this game. If using VSCode like me, you might need to also get the C/C++ extension. 
 
 ### Running the Game:
 To run the C++ file `game.cpp`, you can do something like:  
